@@ -108,7 +108,12 @@ class Faq(Entity):
 
 
 class Auction:
-    def __init__(self):
+    @staticmethod
+    def from_db_login_info(account : str, password: str, host : str, db_name: str) -> "Auction":
+        raise NotImplementedError
+
+    def __init__(self, connection):
+        # connection is a type of mysql connection. (See Mysql connector document. )
         raise NotImplementedError
 
     def customer_register(self, c : Customer):

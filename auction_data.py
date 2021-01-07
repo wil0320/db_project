@@ -77,6 +77,18 @@ class Cart(Entity):
         self.customer = None
         self.merchandise : Dict[Merchandise, int] = None
 
+    def cart_show(self) -> List[Tuple[Merchandise, int]]:
+        """
+        Return a list of (Merchandise, int)
+        """
+        raise NotImplementedError
+
+    def cart_add(self, m : Merchandise, m_nums : int):
+        raise NotImplementedError
+
+    def cart_remove(self, m : Merchandise, m_nums : int):
+        raise NotImplementedError
+
     raise NotImplementedError
 
 class Review(Entity):
@@ -140,19 +152,11 @@ class Auction:
 
         raise NotImplementedError
 
-    def cart_show(self, c : Customer) -> List[Tuple[Merchandise, int]]:
-        """
-        Return a list of (Merchandise, int)
-        """
+
+    def new_cart(self, c : Customer) -> Cart:
         raise NotImplementedError
 
-    def cart_add(self, c : Customer, m : Merchandise):
-        raise NotImplementedError
-
-    def cart_remove(self, c : Customer, m : Merchandise):
-        raise NotImplementedError
-
-    def new_order(self, c : Customer) -> Order:
+    def new_order(self, c : Cart) -> Order:
         """ Put everything in the cart into a new order """
         raise NotImplementedError
 
@@ -160,6 +164,9 @@ class Auction:
         """
         Return a list of Order id.
         """
+        raise NotImplementedError
+
+    def get_order(self, order_id : int) -> Order:
         raise NotImplementedError
 
     def new_merchandise(self, s : Seller, m : Merchandise):

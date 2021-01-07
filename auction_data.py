@@ -99,50 +99,70 @@ class Auction:
     def __init__(self):
         raise NotImplementedError
 
-    def customer_register(self, info : Customer) -> int:
+    def customer_register(self, c : Customer):
+        """ Create a new Customer in the db, and fills the id in c. """
         raise NotImplementedError
 
-    def seller_register(self, info : Seller) -> int:
+    def seller_register(self, s : Seller):
+        """ Create a new Seller in the db, and fills the id in c. """
         raise NotImplementedError
 
-    def customer_login(self, account: str, password: str) -> Optional[int]:
+    def customer_login(self, account: str, password: str) -> Optional[Customer]:
+        """ Returns a Customer if login succeeds, else return None. """
         raise NotImplementedError
 
-    def seller_login(self, account: str, password: str) -> Optional[int]:
+    def seller_login(self, account: str, password: str) -> Optional[Seller]:
+        """ Returns a Seller if login succeeds, else return None. """
         raise NotImplementedError
 
     def customer_update_info(self, info: Customer) -> None:
+        """ Write the new information back to the db """
         raise NotImplementedError
 
     def seller_update_info(self, info: Seller) -> None:
+        """ Write the new information back to the db """
         raise NotImplementedError
 
-    def search_merchandise(self, filter_condition):
+    def search_merchandise(self, filter_condition) -> List[int]:
+        """
+        Returns a list of merchandise id.
+        TODO : filter condition not defined yet.
+        """
         raise NotImplementedError
 
     def get_merchandise_data(self, merchandise_id: int) -> Merchandise:
         raise NotImplementedError
 
     def get_purchase_history(self, customer_id : int) -> List[int]:
+        """
+        Return a list of Order id.
+        """
+
         raise NotImplementedError
 
     def cart_show(self, c : Customer) -> List[Tuple[Merchandise, int]]:
+        """
+        Return a list of (Merchandise, int)
+        """
         raise NotImplementedError
 
-    def cart_add(self, c : Customer, m : Merchandise) -> bool:
+    def cart_add(self, c : Customer, m : Merchandise):
         raise NotImplementedError
 
-    def cart_remove(self, c : Customer, m : Merchandise) -> bool:
+    def cart_remove(self, c : Customer, m : Merchandise):
         raise NotImplementedError
 
     def new_order(self, c : Customer) -> Order:
         """ Put everything in the cart into a new order """
         raise NotImplementedError
 
-    def seller_history(self, s : Seller):
+    def seller_history(self, s : Seller) -> List[int]:
+        """
+        Return a list of Order id.
+        """
         raise NotImplementedError
 
-    def new_merchandise(self, s : Seller, m : Merchandise) -> int:
+    def new_merchandise(self, s : Seller, m : Merchandise):
         raise NotImplementedError
 
     def set_merchandise_data(self, m : Merchandise) -> None:
@@ -151,19 +171,22 @@ class Auction:
     def delete_merchandise(self, m : Merchandise) -> None:
         raise NotImplementedError
 
-    def give_review(self, order : Order, s : Seller, r : Review) -> bool:
+    def give_review(self, order : Order, s : Seller, r : Review):
         raise NotImplementedError
 
     def show_review(self, s : Seller) -> List[Review]:
         raise NotImplementedError
 
-    def add_to_blacklist(self, c : Customer, s : Seller) -> bool:
+    def add_to_blacklist(self, c : Customer, s : Seller):
         raise NotImplementedError
 
     def show_blacklist(self, c : Customer) -> List[int]:
+        """
+        return a list of blacklisted seller id.
+        """
         raise NotImplementedError
 
-    def remove_from_blacklist(self, c : Customer, s : Seller) -> bool:
+    def remove_from_blacklist(self, c : Customer, s : Seller):
         raise NotImplementedError
 
     def list_faq(self, m : Merchandise) -> List[int]:
@@ -175,5 +198,8 @@ class Auction:
     def ask(self, c : Customer, m : Merchandise, question : str) -> Faq:
         raise NotImplementedError
 
-    def answer(self, faq : Faq, answer : str) -> None:
+    def answer(self, faq : Faq, answer : str):
+        """
+        Put the containt of anser into the faq, and update it to the db.
+        """
         raise NotImplementedError

@@ -4,6 +4,11 @@ from typing import Tuple, Optional, List, Dict
 
 # The base class that defines all basic operations of the class
 class Entity:
+    def update(self):
+        """
+        Save every attribute into the db.
+        """
+        raise NotImplementedError
     raise NotImplementedError
 
 class Merchandise(Entity):
@@ -130,14 +135,6 @@ class Auction:
 
     def seller_login(self, account: str, password: str) -> Optional[Seller]:
         """ Returns a Seller if login succeeds, else return None. """
-        raise NotImplementedError
-
-    def customer_update_info(self, info: Customer) -> None:
-        """ Write the new information back to the db """
-        raise NotImplementedError
-
-    def seller_update_info(self, info: Seller) -> None:
-        """ Write the new information back to the db """
         raise NotImplementedError
 
     def search_merchandise(self, filter_condition) -> List[int]:

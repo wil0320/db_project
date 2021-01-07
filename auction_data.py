@@ -1,9 +1,11 @@
 import mysql.connector
 import typing
 from typing import Tuple, Optional, List, Dict
+import abc
 
 # The base class that defines all basic operations of the class
-class Entity:
+class Entity(abc.ABC):
+    @abc.abstractmethod
     def update(self):
         """
         Save every attribute into the db.

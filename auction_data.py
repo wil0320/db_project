@@ -55,8 +55,6 @@ class OrderItem(Entity):
         self.merchandise_id = None
         self.trade_price = None
         self.number = None
-        self.order_date = None
-        self.order_time = None
         self.status = None
 
     raise NotImplementedError

@@ -2,6 +2,9 @@ import mysql.connector
 import typing
 from typing import Tuple, Optional, List, Dict
 import abc
+import itertools
+
+import config
 
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
@@ -114,8 +117,21 @@ class Faq(Entity):
 
 class Auction:
     @staticmethod
-    def from_db_login_info(account : str, password: str, host : str, db_name: str) -> "Auction":
-        raise NotImplementedError
+    def connect_mysql(
+            user : Optional[str] = None,
+            password: Optional[str] = None,
+            host : Optional[str] = None,
+            database: Optional[str] = None
+        ) -> "Auction":
+        login_info = config.LOGIN_INFO.copy()
+        var_names = ("user", "password", "host", "database")
+        local_vars = locals()
+        for var_name in var_names:
+            var = local_vars[var_name]
+            if var:
+                local_vars[var_name] = var
+        cnt = mysql.connector.connect(**login_info)
+        return Auction(cnt)
 
     def __init__(self, connection):
         # connection is a type of mysql connection. (See Mysql connector document. )
@@ -123,7 +139,9 @@ class Auction:
 
     def customer_register(self, c : Customer):
         """ Create a new Customer in the db, and fills the id in c. """
-        raise NotImplementedError
+        c._connection = self.connection
+        c._cursor = c._connect.cursor()
+        c.insert()
 
     def seller_register(self, s : Seller):
         """ Create a new Seller in the db, and fills the id in c. """

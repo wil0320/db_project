@@ -10,7 +10,6 @@ import config
 
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
-
     @classmethod
     def _db_id_name(cls) -> Optional[str]:
         """
@@ -209,7 +208,10 @@ class Auction:
 
     def seller_register(self, s : Seller):
         """ Create a new Seller in the db, and fills the id in c. """
-        raise NotImplementedError
+        s._connection = self.connection
+        s._cursor = c._connection.cursor()
+        s.register_time = datetime.datetime.now()
+        s.insert()
 
     def customer_login(self, account: str, password: str) -> Optional[Customer]:
         """ Returns a Customer if login succeeds, else return None. """

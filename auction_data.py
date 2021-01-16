@@ -126,7 +126,7 @@ class Auction:
 
     def __init__(self, connection):
         # connection is a type of mysql connection. (See Mysql connector document. )
-        raise NotImplementedError
+        self.connection = connection
 
     def customer_register(self, c : Customer):
         """ Create a new Customer in the db, and fills the id in c. """

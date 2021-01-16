@@ -17,7 +17,7 @@ class Entity(abc.ABC):
 
 class Merchandise(Entity):
     def __init__(self):
-        self.id = None
+        self.merchandise_id = None
         self.name = ""
         self.description = ""
         self.price = 0
@@ -28,7 +28,7 @@ class Merchandise(Entity):
 
 class Seller(Entity):
     def __init__(self):
-        self.id = None
+        self.seller_id = None
         self.account = ""
         self.password = ""
         self.email = ""
@@ -39,6 +39,7 @@ class Seller(Entity):
 
 class Customer(Entity):
     def __init__(self):
+        self.customer_id = None
         self.name = ""
         self.account = ""
         self.password = ""
@@ -59,7 +60,7 @@ class OrderItem(Entity):
 
 class Category(Entity):
     def __init__(self):
-        self.id = None
+        self.category_id = None
         self.name = ""
         self.super_category = None
 
@@ -69,13 +70,13 @@ class Order(Entity):
         self.order_id = None
         self.order_date = None
         self.order_time = None
-        self.customer = None
+        self.customer_id = None
         self.items = None     # A list of OrderItem
  
 
 class Cart(Entity):
     def __init__(self):
-        self.customer = None
+        self.customer_id = None
         self.merchandise : Dict[Merchandise, int] = None
 
     def cart_show(self) -> List[Tuple[Merchandise, int]]:
@@ -97,7 +98,7 @@ class Review(Entity):
 
 class Faq(Entity):
     def __init__(self):
-        self.id = None
+        self.faq_id = None
         self.merchandise = None
         self.customer = None
         self.ask_date = None

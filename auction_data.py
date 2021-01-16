@@ -1,6 +1,6 @@
 import mysql.connector
 import typing
-from typing import Tuple, Optional, List, Dict, TypeVar, Type, Iterable
+from typing import Tuple, Optional, List, Dict, TypeVar, Type, Iterable, Sequence
 import abc
 import itertools
 import unittest
@@ -10,10 +10,10 @@ import config
 
 
 
-T = TypeVar('T', bound="Entity") # for type annotation. See https://stackoverflow.com/a/44644576/4281627
-
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
+    T = TypeVar('T', bound="Entity") # for type annotation. See https://stackoverflow.com/a/44644576/4281627
+
     @classmethod
     def _db_id_name(cls) -> Optional[str]:
         """
@@ -62,6 +62,15 @@ class Entity(abc.ABC):
         self._connection.commit()
 
     @classmethod
+    def _from_seq(cls : Type[T], seq : Sequence) -> T:
+        attrs = cls._db_attr()
+        assert len(seq) == len(attrs)
+        instance = cls()
+        for name, val in zip(attrs, seq):
+            setattr(instance, name, val)
+        return instance
+
+    @classmethod
     def _from_id(cls : Type[T], connection, entity_id : int) -> T:
         cursor = connection.cursor()
         table_name = cls.__name__
@@ -69,12 +78,12 @@ class Entity(abc.ABC):
         attr_id_name = cls._db_id_name()
         cls._select_equals(cursor, **{attr_id_name : entity_id})
         query_res = cursor.fetchone()
-        instance = cls()
-        for name, val in zip(attr_name, query_res):
-            setattr(instance, name, val)
+        instance = cls._from_seq(query_res)
         instance._connection = connection
         instance._cursor = cursor
         return instance
+
+
 
 
 class Merchandise(Entity):
@@ -233,6 +242,7 @@ class Auction:
     def __init__(self, connection):
         # connection is a type of mysql connection. (See Mysql connector document. )
         self.connection = connection
+        self.cursor = self.connection.cursor()
 
     def customer_register(self, c : Customer):
         """ Create a new Customer in the db, and fills the id in c. """
@@ -248,13 +258,25 @@ class Auction:
         s.register_time = datetime.datetime.now()
         s.insert()
 
+    def _login(self, cls : Type[Entity.T], account : str, password : str) -> Optional[Entity.T]:
+        cls._select_equals(self.cursor, account=account)
+        query_res = self.cursor.fetchone()
+        if query_res is None:
+            return None
+        instance = cls._from_seq(query_res)
+        if password == instance.password:
+            return instance
+        else:
+            return None
+
     def customer_login(self, account: str, password: str) -> Optional[Customer]:
         """ Returns a Customer if login succeeds, else return None. """
-        raise NotImplementedError
+        return self._login(Customer, account, password)
+        
 
     def seller_login(self, account: str, password: str) -> Optional[Seller]:
         """ Returns a Seller if login succeeds, else return None. """
-        raise NotImplementedError
+        return self._login(Seller, account, password)
 
     def search_merchandise(self, filter_condition) -> List[int]:
         """

@@ -1,12 +1,14 @@
 import mysql.connector
 import typing
-from typing import Tuple, Optional, List, Dict
+from typing import Tuple, Optional, List, Dict, TypeVar, Type
 import abc
 import itertools
 import unittest
 import datetime
 
 import config
+
+T = TypeVar('T', bound="Entity") # for type annotation. See https://stackoverflow.com/a/44644576/4281627
 
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
@@ -41,6 +43,22 @@ class Entity(abc.ABC):
         if self._db_id_name():
             setattr(self, self._db_id_name(), self._cursor.lastrowid)
         self._connection.commit()
+
+    @classmethod
+    def _from_id(cls : Type[T], connection, entity_id : int) -> T:
+        cursor = connection.cursor()
+        table_name = cls.__name__
+        attr_name = cls._db_attr()
+        attr_id_name = cls._db_id_name()
+        cursor.execute(f"SELECT * FROM {table_name} WHERE {attr_id_name}={entity_id}")
+        query_res = cursor.fetchone()
+        instance = cls()
+        for name, val in zip(attr_name, query_res):
+            setattr(instance, name, val)
+        instance._connection = connection
+        instance._cursor = cursor
+        return instance
+
 
 class Merchandise(Entity):
     @classmethod
@@ -300,7 +318,7 @@ class Auction:
 class DBTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        login_info = config.LOGIN_INFO
+        login_info = config.LOGIN_INFO.copy()
         del login_info["database"]
         cls.connection = mysql.connector.connect(**login_info)
         cls.cursor = cls.connection.cursor()
@@ -356,6 +374,13 @@ class EntityTest(DBTestCase):
         self.assertIsNotNone(c.entity_id)
         self.cursor.execute("SELECT * FROM `TestEntity` WHERE `Entity_id` = %s", (c.entity_id,))
         self.assertEqual(len(tuple(self.cursor)), 1)
+
+    def test_from_id(self):
+        self.cursor.execute("INSERT INTO `TestEntity` (`Entity_id`, `Account`, `Password`) VALUES (256, 'Acc', 'Pass')")
+        entry = self.TestEntity._from_id(self.connection, 256)
+        self.assertEqual(entry.entity_id, 256)
+        self.assertEqual(entry.account, "Acc")
+        self.assertEqual(entry.password, "Pass")
 
 if __name__ == "__main__":
     unittest.main()

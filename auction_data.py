@@ -1,12 +1,14 @@
 import mysql.connector
 import typing
-from typing import Tuple, Optional, List, Dict, TypeVar, Type
+from typing import Tuple, Optional, List, Dict, TypeVar, Type, Iterable
 import abc
 import itertools
 import unittest
 import datetime
 
 import config
+
+
 
 T = TypeVar('T', bound="Entity") # for type annotation. See https://stackoverflow.com/a/44644576/4281627
 
@@ -19,6 +21,21 @@ class Entity(abc.ABC):
         The entity updates its id after insertion.
         """
         return None
+
+    @classmethod
+    def _db_table_name(cls) -> str:
+        return cls.__name__
+
+    @classmethod
+    def _select_equals(cls, cursor, attrs : Optional[Iterable[str]] = None, **conditions):
+        assert conditions # Nonempty
+        if attrs:
+            attrs = ", ".join(attrs)
+        else:
+            attrs = "*"
+        condition_str = " AND ".join(key + "=%s" for key in conditions.keys())
+        query = f"SELECT {attrs} FROM {cls._db_table_name()} WHERE {condition_str}"
+        return cursor.execute(query, tuple(conditions.values()))
 
     @classmethod
     @abc.abstractmethod
@@ -50,7 +67,7 @@ class Entity(abc.ABC):
         table_name = cls.__name__
         attr_name = cls._db_attr()
         attr_id_name = cls._db_id_name()
-        cursor.execute(f"SELECT * FROM {table_name} WHERE {attr_id_name}={entity_id}")
+        cls._select_equals(cursor, **{attr_id_name : entity_id})
         query_res = cursor.fetchone()
         instance = cls()
         for name, val in zip(attr_name, query_res):
@@ -381,6 +398,20 @@ class EntityTest(DBTestCase):
         self.assertEqual(entry.entity_id, 256)
         self.assertEqual(entry.account, "Acc")
         self.assertEqual(entry.password, "Pass")
+
+    def test_select(self):
+        self.cursor.execute("INSERT INTO `TestEntity` (`Account`, `Password`) VALUES ('sname', 'spass')")
+        self.TestEntity._select_equals(self.cursor, account="sname", password="spass")
+        entry = self.cursor.fetchone()
+        self.assertSequenceEqual(entry[1:], ("sname", "spass"))
+        self.TestEntity._select_equals(self.cursor, account="sname")
+        entry = self.cursor.fetchone()
+        self.assertSequenceEqual(entry[1:], ("sname", "spass"))
+        self.TestEntity._select_equals(self.cursor, account="NonExistentAccount")
+        entry = self.cursor.fetchone()
+        self.assertIsNone(entry)
+        
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,6 +8,23 @@ import config
 
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
+    @property
+    def _db_id_name(self) -> Optional[str]:
+        # TODO: This should be a class method
+        """
+        The name of id.
+        The entity updates its id after insertion.
+        """
+        return None
+
+    @property
+    @abc.abstractmethod
+    def _db_attr(self) -> Tuple[str]:
+        """All attributes for this enitity."""
+        # TODO: Add typing
+        # TODO: This should be a class method
+        pass
+
     @abc.abstractmethod
     def update(self):
         """
@@ -15,69 +32,108 @@ class Entity(abc.ABC):
         """
         raise NotImplementedError
 
+    def insert(self):
+        cmd = "INSERT INTO customer (Account, Password, Name, Register_time, Bill_info, Email) VALUES (%s, %s, %s, %s, %s, %s)"
+
 class Merchandise(Entity):
-    def __init__(self):
-        self.merchandise_id = None
-        self.name = ""
-        self.description = ""
-        self.price = 0
-        self.number_in_stock = 0
-        self.number_sold = 0
-        self.category = None
-        self.seller = None
+    @property
+    def _db_id(self):
+        return "merchandise_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "merchandise_id",
+            "name",
+            "price",
+            "number_in_stock",
+            "number_sold",
+            "category_id",
+            "seller_id",
+            "description",
+        )
 
 class Seller(Entity):
-    def __init__(self):
-        self.seller_id = None
-        self.account = ""
-        self.password = ""
-        self.email = ""
-        self.name = ""
-        self.register_date = None
-        self.register_time = None
+    @property
+    def _db_id(self):
+        return "seller_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "seller_id",
+            "account",
+            "password",
+            "name",
+            "register_time",
+            "email",
+        )
 
 
 class Customer(Entity):
-    def __init__(self):
-        self.customer_id = None
-        self.name = ""
-        self.account = ""
-        self.password = ""
-        self.email = ""
-        self.register_date = None
-        self.register_time = None
-        self.bill_info = None
+    @property
+    def _db_id(self):
+        return "customer_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "customer_id",
+            "account",
+            "password",
+            "name",
+            "register_time",
+            "bill_info",
+            "email",
+        )
 
 
 class OrderItem(Entity):
-    def __init__(self):
-        self.order_id = None
-        self.merchandise_id = None
-        self.trade_price = None
-        self.number = None
-        self.status = None
+    @property
+    def _db_attr(self):
+        return (
+            "order_id",
+            "merchandise_id",
+            "trade_price",
+            "number",
+            "status",
+        )
 
 
 class Category(Entity):
-    def __init__(self):
-        self.category_id = None
-        self.name = ""
-        self.super_category = None
+    @property
+    def _db_id(self):
+        return "category_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "category_id",
+            "name",
+            "parent_category",
+        )
 
 
 class Order(Entity):
-    def __init__(self):
-        self.order_id = None
-        self.order_date = None
-        self.order_time = None
-        self.customer_id = None
-        self.items = None     # A list of OrderItem
- 
+    @property
+    def _db_id(self):
+        return "order_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "order_id",
+            "customer_id",
+            "order_time",
+        )
 
 class Cart(Entity):
-    def __init__(self):
-        self.customer_id = None
-        self.merchandise : Dict[Merchandise, int] = None
+    @property
+    def _db_attr(self):
+        return (
+            "customer_id",
+            "merchandise",
+        )
 
     def cart_show(self) -> List[Tuple[Merchandise, int]]:
         """
@@ -97,14 +153,21 @@ class Review(Entity):
     # I have no idea how to implement this
 
 class Faq(Entity):
-    def __init__(self):
-        self.faq_id = None
-        self.merchandise = None
-        self.customer = None
-        self.ask_date = None
-        self.ask_time = None
-        self.question = ""
-        self.answer : Optional[str] = None
+    @property
+    def _db_id(self):
+        return "faq_id"
+
+    @property
+    def _db_attr(self):
+        return (
+            "merchandise_id",
+            "faq_id",
+            "customer_id",
+            "question_text",
+            "question_time",
+            "answer_text",
+            "answer_time",
+        )
 
 
 class Auction:

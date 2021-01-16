@@ -3,6 +3,8 @@ import typing
 from typing import Tuple, Optional, List, Dict
 import abc
 import itertools
+import unittest
+import datetime
 
 import config
 
@@ -25,7 +27,6 @@ class Entity(abc.ABC):
         # TODO: This should be a class method
         pass
 
-    @abc.abstractmethod
     def update(self):
         """
         Save every attribute into the db.
@@ -33,7 +34,16 @@ class Entity(abc.ABC):
         raise NotImplementedError
 
     def insert(self):
-        cmd = "INSERT INTO customer (Account, Password, Name, Register_time, Bill_info, Email) VALUES (%s, %s, %s, %s, %s, %s)"
+        table_name = type(self).__name__
+        attr_name = ", ".join(self._db_attr)
+        attr_fstr = ", ".join("%s" for _ in self._db_attr)
+        # getattr(self, "s", None) is equivalent to self.s if self.s is defined, else it's equivalent to None
+        attr_val = [ getattr(self, name, None) for name in self._db_attr ]
+        cmd = f"INSERT INTO {table_name} ({attr_name}) VALUES ({attr_fstr})"
+        self._cursor.execute(cmd, attr_val)
+        if self._db_id_name:
+            setattr(self, self._db_id_name, self._cursor.lastrowid)
+        self._connection.commit()
 
 class Merchandise(Entity):
     @property
@@ -195,7 +205,8 @@ class Auction:
     def customer_register(self, c : Customer):
         """ Create a new Customer in the db, and fills the id in c. """
         c._connection = self.connection
-        c._cursor = c._connect.cursor()
+        c._cursor = c._connection.cursor()
+        c.register_time = datetime.datetime.now()
         c.insert()
 
     def seller_register(self, s : Seller):
@@ -285,3 +296,66 @@ class Auction:
         Put the containt of anser into the faq, and update it to the db.
         """
         raise NotImplementedError
+
+class DBTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        login_info = config.LOGIN_INFO
+        del login_info["database"]
+        cls.connection = mysql.connector.connect(**login_info)
+        cls.cursor = cls.connection.cursor()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.connection.close()
+
+
+class EntityTest(DBTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cursor.execute("CREATE DATABASE db_test DEFAULT CHARACTER SET 'utf8'")
+        cls.cursor.execute("USE db_test")
+        cls.cursor.execute(
+            r"CREATE TABLE `TestEntity` ("
+            r"  `Entity_id` int(11) NOT NULL,"
+            r"  `Account` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,"
+            r"  `Password` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL"
+            r") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;"
+        )
+        cls.cursor.execute(r"ALTER TABLE `TestEntity` ADD PRIMARY KEY (`Entity_id`)")
+        cls.cursor.execute(r"ALTER TABLE `TestEntity` MODIFY `Entity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;")
+        cls.connection.commit()
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            cls.cursor.fetchall()
+        except mysql.connector.errors.InterfaceError:
+            pass
+        cls.cursor.execute("DROP DATABASE db_test")
+        cls.connection.commit()
+        super().tearDownClass()
+
+    class TestEntity(Entity):
+        @property
+        def _db_id_name(self):
+            return "entity_id"
+
+        @property
+        def _db_attr(self):
+            return ("entity_id", "account", "password")
+
+    def test_insert(self):
+        c = self.TestEntity()
+        c.account = "ACC"
+        c.password = "pass"
+        c._cursor = self.cursor
+        c._connection = self.connection
+        c.insert()
+        self.assertIsNotNone(c.entity_id)
+        self.cursor.execute("SELECT * FROM `TestEntity` WHERE `Entity_id` = %s", (c.entity_id,))
+        self.assertEqual(len(tuple(self.cursor)), 1)
+
+if __name__ == "__main__":
+    unittest.main()

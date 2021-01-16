@@ -14,7 +14,6 @@ class Entity(abc.ABC):
         Save every attribute into the db.
         """
         raise NotImplementedError
-    raise NotImplementedError
 
 class Merchandise(Entity):
     def __init__(self):
@@ -26,7 +25,6 @@ class Merchandise(Entity):
         self.number_sold = 0
         self.category = None
         self.seller = None
-    raise NotImplementedError
 
 class Seller(Entity):
     def __init__(self):
@@ -38,7 +36,6 @@ class Seller(Entity):
         self.register_date = None
         self.register_time = None
 
-    raise NotImplementedError
 
 class Customer(Entity):
     def __init__(self):
@@ -50,7 +47,6 @@ class Customer(Entity):
         self.register_time = None
         self.bill_info = None
 
-    raise NotImplementedError
 
 class OrderItem(Entity):
     def __init__(self):
@@ -60,14 +56,12 @@ class OrderItem(Entity):
         self.number = None
         self.status = None
 
-    raise NotImplementedError
 
 class Category(Entity):
     def __init__(self):
         self.id = None
         self.name = ""
         self.super_category = None
-    raise NotImplementedError
 
 
 class Order(Entity):
@@ -78,7 +72,6 @@ class Order(Entity):
         self.customer = None
         self.items = None     # A list of OrderItem
  
-    raise NotImplementedError
 
 class Cart(Entity):
     def __init__(self):
@@ -97,11 +90,10 @@ class Cart(Entity):
     def cart_remove(self, m : Merchandise, m_nums : int):
         raise NotImplementedError
 
-    raise NotImplementedError
 
 class Review(Entity):
+    pass
     # I have no idea how to implement this
-    raise NotImplementedError
 
 class Faq(Entity):
     def __init__(self):
@@ -112,7 +104,6 @@ class Faq(Entity):
         self.ask_time = None
         self.question = ""
         self.answer : Optional[str] = None
-    raise NotImplementedError
 
 
 class Auction:

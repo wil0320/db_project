@@ -10,21 +10,19 @@ import config
 
 # The base class that defines all basic operations of the class
 class Entity(abc.ABC):
-    @property
-    def _db_id_name(self) -> Optional[str]:
-        # TODO: This should be a class method
+
+    @classmethod
+    def _db_id_name(cls) -> Optional[str]:
         """
         The name of id.
         The entity updates its id after insertion.
         """
         return None
 
-    @property
+    @classmethod
     @abc.abstractmethod
-    def _db_attr(self) -> Tuple[str]:
+    def _db_attr(cls) -> Tuple[str]:
         """All attributes for this enitity."""
-        # TODO: Add typing
-        # TODO: This should be a class method
         pass
 
     def update(self):
@@ -35,23 +33,23 @@ class Entity(abc.ABC):
 
     def insert(self):
         table_name = type(self).__name__
-        attr_name = ", ".join(self._db_attr)
-        attr_fstr = ", ".join("%s" for _ in self._db_attr)
+        attr_name = ", ".join(self._db_attr())
+        attr_fstr = ", ".join("%s" for _ in self._db_attr())
         # getattr(self, "s", None) is equivalent to self.s if self.s is defined, else it's equivalent to None
-        attr_val = [ getattr(self, name, None) for name in self._db_attr ]
+        attr_val = [ getattr(self, name, None) for name in self._db_attr() ]
         cmd = f"INSERT INTO {table_name} ({attr_name}) VALUES ({attr_fstr})"
         self._cursor.execute(cmd, attr_val)
-        if self._db_id_name:
-            setattr(self, self._db_id_name, self._cursor.lastrowid)
+        if self._db_id_name():
+            setattr(self, self._db_id_name(), self._cursor.lastrowid)
         self._connection.commit()
 
 class Merchandise(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(cls):
         return "merchandise_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "merchandise_id",
             "name",
@@ -64,12 +62,12 @@ class Merchandise(Entity):
         )
 
 class Seller(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(self):
         return "seller_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "seller_id",
             "account",
@@ -81,12 +79,12 @@ class Seller(Entity):
 
 
 class Customer(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(cls):
         return "customer_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "customer_id",
             "account",
@@ -99,8 +97,8 @@ class Customer(Entity):
 
 
 class OrderItem(Entity):
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "order_id",
             "merchandise_id",
@@ -111,12 +109,12 @@ class OrderItem(Entity):
 
 
 class Category(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(cls):
         return "category_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "category_id",
             "name",
@@ -125,12 +123,12 @@ class Category(Entity):
 
 
 class Order(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(cls):
         return "order_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "order_id",
             "customer_id",
@@ -138,8 +136,8 @@ class Order(Entity):
         )
 
 class Cart(Entity):
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "customer_id",
             "merchandise",
@@ -163,12 +161,12 @@ class Review(Entity):
     # I have no idea how to implement this
 
 class Faq(Entity):
-    @property
-    def _db_id(self):
+    @classmethod
+    def _db_id_name(cls):
         return "faq_id"
 
-    @property
-    def _db_attr(self):
+    @classmethod
+    def _db_attr(cls):
         return (
             "merchandise_id",
             "faq_id",
@@ -338,12 +336,12 @@ class EntityTest(DBTestCase):
         super().tearDownClass()
 
     class TestEntity(Entity):
-        @property
-        def _db_id_name(self):
+        @classmethod
+        def _db_id_name(cls):
             return "entity_id"
 
-        @property
-        def _db_attr(self):
+        @classmethod
+        def _db_attr(cls):
             return ("entity_id", "account", "password")
 
     def test_insert(self):

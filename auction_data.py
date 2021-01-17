@@ -392,6 +392,9 @@ class DBTestCase(unittest.TestCase):
         cls.connection.commit()
         cls.connection.close()
 
+    def tearDown(self):
+        self.connection.rollback()
+
 
 class EntityTest(DBTestCase):
     @classmethod

@@ -58,6 +58,7 @@ class Entity(abc.ABC):
         raise NotImplementedError
 
     def insert(self):
+        """Put this entity into db."""
         table_name = type(self).__name__
         attr_name = ", ".join(self._db_attr())
         attr_fstr = ", ".join("%s" for _ in self._db_attr())
@@ -69,6 +70,14 @@ class Entity(abc.ABC):
         if self._db_id_name():
             setattr(self, self._db_id_name(), cursor.lastrowid)
         self._connection.commit()
+
+    def delete(self):
+        """Remove this entity from db. Please make sure it was inserted before."""
+        if (pid := self._db_id_name()):
+            self._delete_equals(self._connection, **{pid : getattr(self, pid)})
+        else:
+            d = { attr_name : getattr(self, attr_name) for attr_name in self._db_attr() }
+            self._delete_equals(self._connection, **d)
 
     @classmethod
     def _from_seq(cls : Type[T], seq : Sequence) -> T:
@@ -409,6 +418,12 @@ class EntityTest(DBTestCase):
         )
         cls.cursor.execute(r"ALTER TABLE `TestEntity` ADD PRIMARY KEY (`Entity_id`)")
         cls.cursor.execute(r"ALTER TABLE `TestEntity` MODIFY `Entity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;")
+        cls.cursor.execute(
+            r"CREATE TABLE `StringEntity` ("
+            r"  `Value` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL"
+            r") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;"
+        )
+        cls.cursor.execute(r"ALTER TABLE `StringEntity` ADD PRIMARY KEY (`Value`)")
         cls.connection.commit()
 
     class TestEntity(Entity):
@@ -419,6 +434,17 @@ class EntityTest(DBTestCase):
         @classmethod
         def _db_attr(cls):
             return ("entity_id", "account", "password")
+
+        @classmethod
+        def _count(cls, cursor):
+            cursor.execute("SELECT COUNT(*) FROM `TestEntity`")
+            return cursor.fetchone()[0]
+
+    class StringEntity(Entity):
+        @classmethod
+        def _db_attr(cls):
+            return ("value", )
+
 
     def test_insert(self):
         c = self.TestEntity()
@@ -456,6 +482,28 @@ class EntityTest(DBTestCase):
         self.assertSequenceEqual(select_res, [('delete', 'me')])
         self.TestEntity._delete_equals(self.connection, Account = 'delete')
         self.cursor.execute("SELECT * FROM `TestEntity` WHERE `Account`='delete'")
+        self.assertSequenceEqual(self.cursor.fetchall(), ())
+
+    def test_insertdelete(self):
+        old_cnt = self.TestEntity._count(self.cursor)
+        c = self.TestEntity()
+        c.account = "ACC"
+        c.password = "pass"
+        c._connection = self.connection
+        c.insert()
+        self.assertEqual(self.TestEntity._count(self.cursor), old_cnt+1)
+        c.delete()
+        self.assertEqual(self.TestEntity._count(self.cursor), old_cnt)
+
+    def test_insertdelete_no_id(self):
+        c = self.StringEntity()
+        c.value = "helloworld"
+        c._connection = self.connection
+        c.insert()
+        self.cursor.execute("SELECT * FROM `StringEntity`")
+        self.assertSequenceEqual(self.cursor.fetchone(), (c.value,))
+        c.delete()
+        self.cursor.execute("SELECT * FROM `StringEntity`")
         self.assertSequenceEqual(self.cursor.fetchall(), ())
 
 

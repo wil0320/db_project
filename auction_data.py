@@ -56,9 +56,10 @@ class Entity(abc.ABC):
         # getattr(self, "s", None) is equivalent to self.s if self.s is defined, else it's equivalent to None
         attr_val = [ getattr(self, name, None) for name in self._db_attr() ]
         cmd = f"INSERT INTO {table_name} ({attr_name}) VALUES ({attr_fstr})"
-        self._cursor.execute(cmd, attr_val)
+        cursor = self._connection.cursor()
+        cursor.execute(cmd, attr_val)
         if self._db_id_name():
-            setattr(self, self._db_id_name(), self._cursor.lastrowid)
+            setattr(self, self._db_id_name(), cursor.lastrowid)
         self._connection.commit()
 
     @classmethod
@@ -80,7 +81,6 @@ class Entity(abc.ABC):
         query_res = cursor.fetchone()
         instance = cls._from_seq(query_res)
         instance._connection = connection
-        instance._cursor = cursor
         return instance
 
 
@@ -247,14 +247,12 @@ class Auction:
     def customer_register(self, c : Customer):
         """ Create a new Customer in the db, and fills the id in c. """
         c._connection = self.connection
-        c._cursor = c._connection.cursor()
         c.register_time = datetime.datetime.now()
         c.insert()
 
     def seller_register(self, s : Seller):
         """ Create a new Seller in the db, and fills the id in c. """
         s._connection = self.connection
-        s._cursor = c._connection.cursor()
         s.register_time = datetime.datetime.now()
         s.insert()
 
@@ -407,7 +405,6 @@ class EntityTest(DBTestCase):
         c = self.TestEntity()
         c.account = "ACC"
         c.password = "pass"
-        c._cursor = self.cursor
         c._connection = self.connection
         c.insert()
         self.assertIsNotNone(c.entity_id)

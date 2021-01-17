@@ -517,11 +517,35 @@ class AuctionTest(DBTestCase):
         for s in schema.split(';'):
             cls.cursor.execute(s)
         cls.connection.commit()
+        cls.auction = Auction(cls.connection)
+
+    @classmethod
+    def tearDownClas(cls):
+        cls.connection.close()
 
 
-    def testFoo(self):
-        pass
-            
+    def test_register_customer(self):
+        c = Customer()
+        c.account = "Acc"
+        c.name = "Name"
+        c.password = "Pass"
+        self.auction.customer_register(c)
+        c2 = Customer._from_id(self.connection, c.customer_id)
+        for attr_name in Customer._db_attr():
+            # TODO: Cannot compare datetime for now
+            self.assertEqual(getattr(c, attr_name, None), getattr(c2, attr_name))
+
+    def test_register_seller(self):
+        s = Seller()
+        s.account = "Acc"
+        s.name = "Name"
+        s.password = "Pass"
+        self.auction.seller_register(s)
+        s2 = Seller._from_id(self.connection, s.seller_id)
+        for attr_name in Seller._db_attr():
+            # TODO: Cannot compare datetime for now
+            self.assertEqual(getattr(s, attr_name, None), getattr(s2, attr_name))
+
 
 
 

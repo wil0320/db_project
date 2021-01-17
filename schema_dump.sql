@@ -16,66 +16,66 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `blacklist`
+-- Table structure for table `Blacklist`
 --
 
-DROP TABLE IF EXISTS `blacklist`;
+DROP TABLE IF EXISTS `Blacklist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `blacklist` (
+CREATE TABLE `Blacklist` (
   `Customer_id` int(11) NOT NULL,
   `Seller_id` int(11) NOT NULL,
   PRIMARY KEY (`Customer_id`,`Seller_id`),
   KEY `blacklist_fk_seller` (`Seller_id`),
-  CONSTRAINT `blacklist_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `customer` (`Customer_id`) ON DELETE CASCADE,
-  CONSTRAINT `blacklist_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `seller` (`Seller_id`) ON DELETE CASCADE
+  CONSTRAINT `blacklist_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `Customer` (`customer_id`) ON DELETE CASCADE,
+  CONSTRAINT `blacklist_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `Seller` (`Seller_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `blacklist`
+-- Dumping data for table `Blacklist`
 --
 
-LOCK TABLES `blacklist` WRITE;
-/*!40000 ALTER TABLE `blacklist` DISABLE KEYS */;
-/*!40000 ALTER TABLE `blacklist` ENABLE KEYS */;
+LOCK TABLES `Blacklist` WRITE;
+/*!40000 ALTER TABLE `Blacklist` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Blacklist` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `category`
+-- Table structure for table `Category`
 --
 
-DROP TABLE IF EXISTS `category`;
+DROP TABLE IF EXISTS `Category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `category` (
+CREATE TABLE `Category` (
   `Category_id` int(11) NOT NULL AUTO_INCREMENT,
   `Name` varchar(16) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `Parent_category` int(11) DEFAULT NULL,
   PRIMARY KEY (`Category_id`),
   UNIQUE KEY `cgname_UNIQUE` (`Name`),
   KEY `category_fk_parent` (`Parent_category`),
-  CONSTRAINT `category_fk_parent` FOREIGN KEY (`Parent_category`) REFERENCES `category` (`Category_id`) ON DELETE SET NULL
+  CONSTRAINT `category_fk_parent` FOREIGN KEY (`Parent_category`) REFERENCES `Category` (`Category_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `category`
+-- Dumping data for table `Category`
 --
 
-LOCK TABLES `category` WRITE;
-/*!40000 ALTER TABLE `category` DISABLE KEYS */;
-/*!40000 ALTER TABLE `category` ENABLE KEYS */;
+LOCK TABLES `Category` WRITE;
+/*!40000 ALTER TABLE `Category` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Category` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `customer`
+-- Table structure for table `Customer`
 --
 
-DROP TABLE IF EXISTS `customer`;
+DROP TABLE IF EXISTS `Customer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `customer` (
+CREATE TABLE `Customer` (
   `Customer_id` int(11) NOT NULL AUTO_INCREMENT,
   `Account` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `Password` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,
@@ -86,26 +86,26 @@ CREATE TABLE `customer` (
   PRIMARY KEY (`Customer_id`),
   UNIQUE KEY `Account_UNIQUE` (`Account`),
   UNIQUE KEY `mail_UNIQUE` (`Email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `customer`
+-- Dumping data for table `Customer`
 --
 
-LOCK TABLES `customer` WRITE;
-/*!40000 ALTER TABLE `customer` DISABLE KEYS */;
-/*!40000 ALTER TABLE `customer` ENABLE KEYS */;
+LOCK TABLES `Customer` WRITE;
+/*!40000 ALTER TABLE `Customer` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `faq`
+-- Table structure for table `Faq`
 --
 
-DROP TABLE IF EXISTS `faq`;
+DROP TABLE IF EXISTS `Faq`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `faq` (
+CREATE TABLE `Faq` (
   `Merchandise_id` int(11) NOT NULL,
   `FAQ_id` int(11) NOT NULL,
   `Customer_id` int(11) DEFAULT NULL,
@@ -115,55 +115,55 @@ CREATE TABLE `faq` (
   `Answer_time` datetime DEFAULT NULL,
   PRIMARY KEY (`Merchandise_id`,`FAQ_id`),
   KEY `faq_fk_customer` (`Customer_id`),
-  CONSTRAINT `faq_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `customer` (`Customer_id`),
-  CONSTRAINT `faq_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `merchandise` (`Merchandise_id`) ON DELETE CASCADE
+  CONSTRAINT `faq_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `Customer` (`Customer_id`),
+  CONSTRAINT `faq_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `Merchandise` (`merchandise_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `faq`
+-- Dumping data for table `Faq`
 --
 
-LOCK TABLES `faq` WRITE;
-/*!40000 ALTER TABLE `faq` DISABLE KEYS */;
-/*!40000 ALTER TABLE `faq` ENABLE KEYS */;
+LOCK TABLES `Faq` WRITE;
+/*!40000 ALTER TABLE `Faq` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Faq` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `in_cart`
+-- Table structure for table `In_Cart`
 --
 
-DROP TABLE IF EXISTS `in_cart`;
+DROP TABLE IF EXISTS `In_Cart`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `in_cart` (
+CREATE TABLE `In_Cart` (
   `Customer_id` int(11) NOT NULL,
   `Merchandise_id` int(11) NOT NULL,
   `Number` int(11) NOT NULL,
   PRIMARY KEY (`Customer_id`,`Merchandise_id`),
   KEY `in_cart_fk_merchandise` (`Merchandise_id`),
-  CONSTRAINT `in_cart_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `customer` (`Customer_id`) ON DELETE CASCADE,
-  CONSTRAINT `in_cart_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `merchandise` (`Merchandise_id`) ON DELETE CASCADE
+  CONSTRAINT `in_cart_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `Customer` (`Customer_id`) ON DELETE CASCADE,
+  CONSTRAINT `in_cart_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `Merchandise` (`merchandise_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `in_cart`
+-- Dumping data for table `In_Cart`
 --
 
-LOCK TABLES `in_cart` WRITE;
-/*!40000 ALTER TABLE `in_cart` DISABLE KEYS */;
-/*!40000 ALTER TABLE `in_cart` ENABLE KEYS */;
+LOCK TABLES `In_Cart` WRITE;
+/*!40000 ALTER TABLE `In_Cart` DISABLE KEYS */;
+/*!40000 ALTER TABLE `In_Cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `merchandise`
+-- Table structure for table `Merchandise`
 --
 
-DROP TABLE IF EXISTS `merchandise`;
+DROP TABLE IF EXISTS `Merchandise`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `merchandise` (
+CREATE TABLE `Merchandise` (
   `Merchandise_id` int(11) NOT NULL AUTO_INCREMENT,
   `Name` varchar(45) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `Price` int(11) NOT NULL,
@@ -176,54 +176,54 @@ CREATE TABLE `merchandise` (
   UNIQUE KEY `Merchandise_id_UNIQUE` (`Merchandise_id`),
   KEY `merchandise_fk_category` (`Category_id`),
   KEY `merchandise_fk_seller` (`Seller_id`),
-  CONSTRAINT `merchandise_fk_category` FOREIGN KEY (`Category_id`) REFERENCES `category` (`Category_id`),
-  CONSTRAINT `merchandise_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `seller` (`Seller_id`)
+  CONSTRAINT `merchandise_fk_category` FOREIGN KEY (`Category_id`) REFERENCES `Category` (`Category_id`),
+  CONSTRAINT `merchandise_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `Seller` (`Seller_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `merchandise`
+-- Dumping data for table `Merchandise`
 --
 
-LOCK TABLES `merchandise` WRITE;
-/*!40000 ALTER TABLE `merchandise` DISABLE KEYS */;
-/*!40000 ALTER TABLE `merchandise` ENABLE KEYS */;
+LOCK TABLES `Merchandise` WRITE;
+/*!40000 ALTER TABLE `Merchandise` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Merchandise` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `order`
+-- Table structure for table `Order`
 --
 
-DROP TABLE IF EXISTS `order`;
+DROP TABLE IF EXISTS `Order`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `order` (
+CREATE TABLE `Order` (
   `Order_id` int(11) NOT NULL AUTO_INCREMENT,
   `Customer_id` int(11) NOT NULL,
   `Order_time` datetime NOT NULL,
   PRIMARY KEY (`Order_id`),
   KEY `order_fk_customer` (`Customer_id`),
-  CONSTRAINT `order_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `customer` (`Customer_id`)
+  CONSTRAINT `order_fk_customer` FOREIGN KEY (`Customer_id`) REFERENCES `Customer` (`Customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `order`
+-- Dumping data for table `Order`
 --
 
-LOCK TABLES `order` WRITE;
-/*!40000 ALTER TABLE `order` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order` ENABLE KEYS */;
+LOCK TABLES `Order` WRITE;
+/*!40000 ALTER TABLE `Order` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Order` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `orderitem`
+-- Table structure for table `OrderItem`
 --
 
-DROP TABLE IF EXISTS `orderitem`;
+DROP TABLE IF EXISTS `OrderItem`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `orderitem` (
+CREATE TABLE `OrderItem` (
   `Order_id` int(11) NOT NULL,
   `Merchandise_id` int(11) NOT NULL,
   `Trade_price` int(11) NOT NULL,
@@ -231,56 +231,56 @@ CREATE TABLE `orderitem` (
   `Status` int(1) DEFAULT NULL,
   PRIMARY KEY (`Order_id`,`Merchandise_id`),
   KEY `orderitem_fk_merchandise` (`Merchandise_id`),
-  CONSTRAINT `orderitem_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `merchandise` (`Merchandise_id`) ON DELETE CASCADE,
-  CONSTRAINT `orderitem_fk_order` FOREIGN KEY (`Order_id`) REFERENCES `order` (`Order_id`) ON DELETE CASCADE
+  CONSTRAINT `orderitem_fk_merchandise` FOREIGN KEY (`Merchandise_id`) REFERENCES `Merchandise` (`Merchandise_id`) ON DELETE CASCADE,
+  CONSTRAINT `orderitem_fk_order` FOREIGN KEY (`Order_id`) REFERENCES `Order` (`Order_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `orderitem`
+-- Dumping data for table `OrderItem`
 --
 
-LOCK TABLES `orderitem` WRITE;
-/*!40000 ALTER TABLE `orderitem` DISABLE KEYS */;
-/*!40000 ALTER TABLE `orderitem` ENABLE KEYS */;
+LOCK TABLES `OrderItem` WRITE;
+/*!40000 ALTER TABLE `OrderItem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `OrderItem` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `review`
+-- Table structure for table `Review`
 --
 
-DROP TABLE IF EXISTS `review`;
+DROP TABLE IF EXISTS `Review`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `review` (
+CREATE TABLE `Review` (
   `Seller_id` int(11) NOT NULL,
   `Order_id` int(11) NOT NULL,
   `Rating` int(11) NOT NULL,
   `Time` datetime NOT NULL,
   PRIMARY KEY (`Seller_id`,`Order_id`),
   KEY `review_fk_order` (`Order_id`),
-  CONSTRAINT `review_fk_order` FOREIGN KEY (`Order_id`) REFERENCES `order` (`Order_id`),
-  CONSTRAINT `review_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `seller` (`Seller_id`)
+  CONSTRAINT `review_fk_order` FOREIGN KEY (`Order_id`) REFERENCES `Order` (`Order_id`),
+  CONSTRAINT `review_fk_seller` FOREIGN KEY (`Seller_id`) REFERENCES `Seller` (`Seller_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `review`
+-- Dumping data for table `Review`
 --
 
-LOCK TABLES `review` WRITE;
-/*!40000 ALTER TABLE `review` DISABLE KEYS */;
-/*!40000 ALTER TABLE `review` ENABLE KEYS */;
+LOCK TABLES `Review` WRITE;
+/*!40000 ALTER TABLE `Review` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Review` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `seller`
+-- Table structure for table `Seller`
 --
 
-DROP TABLE IF EXISTS `seller`;
+DROP TABLE IF EXISTS `Seller`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `seller` (
+CREATE TABLE `Seller` (
   `Seller_id` int(11) NOT NULL AUTO_INCREMENT,
   `Account` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `Password` varchar(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,
@@ -294,12 +294,12 @@ CREATE TABLE `seller` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `seller`
+-- Dumping data for table `Seller`
 --
 
-LOCK TABLES `seller` WRITE;
-/*!40000 ALTER TABLE `seller` DISABLE KEYS */;
-/*!40000 ALTER TABLE `seller` ENABLE KEYS */;
+LOCK TABLES `Seller` WRITE;
+/*!40000 ALTER TABLE `Seller` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Seller` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -311,4 +311,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-15 13:43:45
+-- Dump completed on 2021-01-17 15:12:02

@@ -352,16 +352,36 @@ class Auction:
         """
         raise NotImplementedError
 
+class classproperty():
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
+
+
 class DBTestCase(unittest.TestCase):
+    @classproperty
+    def db_name(cls):
+        return cls.__name__
+
     @classmethod
     def setUpClass(cls):
         login_info = config.LOGIN_INFO.copy()
         del login_info["database"]
         cls.connection = mysql.connector.connect(**login_info)
         cls.cursor = cls.connection.cursor()
+        cls.cursor.execute(f"CREATE DATABASE {cls.db_name} DEFAULT CHARACTER SET 'utf8'")
+        cls.cursor.execute(f"USE {cls.db_name}")
 
     @classmethod
     def tearDownClass(cls):
+        try:
+            cls.cursor.fetchall()
+        except mysql.connector.errors.InterfaceError:
+            pass
+        cls.cursor.execute(f"DROP DATABASE {cls.db_name}")
+        cls.connection.commit()
         cls.connection.close()
 
 
@@ -369,8 +389,6 @@ class EntityTest(DBTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.cursor.execute("CREATE DATABASE db_test DEFAULT CHARACTER SET 'utf8'")
-        cls.cursor.execute("USE db_test")
         cls.cursor.execute(
             r"CREATE TABLE `TestEntity` ("
             r"  `Entity_id` int(11) NOT NULL,"
@@ -381,16 +399,6 @@ class EntityTest(DBTestCase):
         cls.cursor.execute(r"ALTER TABLE `TestEntity` ADD PRIMARY KEY (`Entity_id`)")
         cls.cursor.execute(r"ALTER TABLE `TestEntity` MODIFY `Entity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;")
         cls.connection.commit()
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            cls.cursor.fetchall()
-        except mysql.connector.errors.InterfaceError:
-            pass
-        cls.cursor.execute("DROP DATABASE db_test")
-        cls.connection.commit()
-        super().tearDownClass()
 
     class TestEntity(Entity):
         @classmethod
@@ -429,7 +437,23 @@ class EntityTest(DBTestCase):
         self.TestEntity._select_equals(self.cursor, account="NonExistentAccount")
         entry = self.cursor.fetchone()
         self.assertIsNone(entry)
-        
+
+
+class AuctionTest(DBTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with open("schema_dump.sql") as schema_file:
+            schema = schema_file.read()
+        for s in schema.split(';'):
+            cls.cursor.execute(s)
+        cls.connection.commit()
+
+
+    def testFoo(self):
+        pass
+            
+
 
 
 if __name__ == "__main__":

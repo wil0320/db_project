@@ -38,6 +38,14 @@ class Entity(abc.ABC):
         return cursor.execute(query, tuple(conditions.values()))
 
     @classmethod
+    def _delete_equals(cls, connection, **conditions):
+        condition_str = " AND ".join(key + "=%s" for key in conditions.keys())
+        query = f"DELETE FROM {cls._db_table_name()} WHERE {condition_str}"
+        cursor = connection.cursor()
+        cursor.execute(query, tuple(conditions.values()))
+        connection.commit()
+
+    @classmethod
     @abc.abstractmethod
     def _db_attr(cls) -> Tuple[str]:
         """All attributes for this enitity."""
@@ -437,6 +445,16 @@ class EntityTest(DBTestCase):
         self.TestEntity._select_equals(self.cursor, account="NonExistentAccount")
         entry = self.cursor.fetchone()
         self.assertIsNone(entry)
+
+    def test_delete(self):
+        self.cursor.execute("INSERT INTO `TestEntity` (`Account`, `Password`) VALUES ('delete', 'me')")
+        self.cursor.execute("SELECT * FROM `TestEntity` WHERE `Account`='delete'")
+        select_res = [(acc, pas) for _, acc, pas in self.cursor.fetchall()]
+        self.assertSequenceEqual(select_res, [('delete', 'me')])
+        self.TestEntity._delete_equals(self.connection, Account = 'delete')
+        self.cursor.execute("SELECT * FROM `TestEntity` WHERE `Account`='delete'")
+        self.assertSequenceEqual(self.cursor.fetchall(), ())
+
 
 
 class AuctionTest(DBTestCase):
